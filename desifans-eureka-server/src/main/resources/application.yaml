@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: desifans-eureka-server
+
+server:
+  port: 8761
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+  server:
+    # Disable self-preservation mode for development
+    enable-self-preservation: false
+    # Faster eviction for testing
+    eviction-interval-timer-in-ms: 3000
+  instance:
+    hostname: localhost
+
+# Actuator configuration for health checks
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always

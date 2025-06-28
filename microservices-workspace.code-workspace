@@ -1,0 +1,21 @@
+{
+    "folders": [
+        {
+            "name": "Eureka Server",
+            "path": "./desifans-eureka-server"
+        }
+    ],
+    "settings": {
+        "java.configuration.updateBuildConfiguration": "interactive",
+        "java.compile.nullAnalysis.mode": "automatic",
+        "maven.view": "hierarchical"
+    },
+    "extensions": {
+        "recommendations": [
+            "vscjava.vscode-java-pack",
+            "vscjava.vscode-maven",
+            "redhat.java",
+            "vscjava.vscode-java-dependency"
+        ]
+    }
+}

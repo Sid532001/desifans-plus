@@ -1,0 +1,230 @@
+spring:
+  application:
+    name: desifans-user-service
+  config:
+    import: "optional:configserver:http://localhost:8888"
+  cloud:
+    config:
+      enabled: false  # Disable config server for development
+  
+  # Spring Cloud Configuration
+    compatibility-verifier:
+      enabled: false
+  
+  # MongoDB Configuration
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/desifans_users
+      auto-index-creation: true
+    
+    # Redis Configuration (optional for development)
+    redis:
+      host: localhost
+      port: 6379
+      password: 
+      timeout: 2000ms
+      connect-timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+        shutdown-timeout: 100ms
+  
+  # Mail Configuration (disabled for development)
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    default-encoding: UTF-8
+  # Disable mail auto-configuration for development
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration
+  
+  # Cache Configuration
+  cache:
+    type: redis
+    redis:
+      time-to-live: 3600000  # 1 hour in milliseconds
+  
+  # Jackson Configuration
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+
+# Server Configuration
+server:
+  port: 9091
+  servlet:
+    context-path: /api/v1
+  error:
+    include-message: always
+    include-binding-errors: always
+
+# Eureka Client Configuration
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    hostname: localhost
+
+# Management and Monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  health:
+    redis:
+      enabled: false  # Disable Redis health check for development
+    mail:
+      enabled: false  # Disable Mail health check for development
+    config:
+      enabled: false  # Disable Config Server health check for development
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+# Logging Configuration
+logging:
+  level:
+    '[com.learn.desifans_user_service]': DEBUG
+    '[org.springframework.security]': DEBUG
+    '[org.springframework.web]': DEBUG
+    '[org.springframework.data.mongodb]': DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Custom Application Properties
+app:
+  security:
+    jwt:
+      secret: ${JWT_SECRET:mySecretKey123456789012345678901234567890}
+      access-token:
+        expiration: 900000  # 15 minutes in milliseconds
+      refresh-token:
+        expiration: 604800000  # 7 days in milliseconds
+    password:
+      bcrypt-rounds: 12
+    rate-limiting:
+      login:
+        max-attempts: 5
+        lockout-duration: 900000  # 15 minutes
+      api:
+        requests-per-minute: 100
+    session:
+      max-concurrent-sessions: 5
+  
+  email:
+    enabled: false  # Disable email for development
+    verification:
+      expiration: 43200000  # 12 hours in milliseconds
+      base-url: ${EMAIL_BASE_URL:http://localhost:3000}
+    password-reset:
+      expiration: 3600000  # 1 hour in milliseconds
+  
+  file:
+    upload:
+      max-size: 5242880  # 5MB in bytes
+      allowed-extensions: jpg,jpeg,png,gif
+      profile-pictures-path: uploads/profile-pictures/
+      banner-images-path: uploads/banners/
+  
+  creator:
+    verification:
+      required-documents: ID_DOCUMENT,TAX_FORM
+      min-age: 18
+    subscription:
+      min-price: 4.99
+      max-price: 999.99
+      currency: USD
+
+---
+# Development Profile
+spring:
+  config:
+    activate:
+      on-profile: development
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/desifans_users_dev
+  
+  # Disable external services for development
+  mail:
+    host: localhost
+    port: 25
+  cloud:
+    config:
+      enabled: false
+    discovery:
+      enabled: false
+
+# Development health checks
+management:
+  health:
+    redis:
+      enabled: false
+    mail:
+      enabled: false
+    config:
+      enabled: false
+
+logging:
+  level:
+    root: INFO
+    '[com.learn.desifans_user_service]': DEBUG
+
+---
+# Testing Profile
+spring:
+  config:
+    activate:
+      on-profile: test
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/desifans_users_test
+    redis:
+      host: localhost
+      port: 6379
+
+---
+# Production Profile
+spring:
+  config:
+    activate:
+      on-profile: production
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/desifans_users_prod}
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+
+server:
+  port: ${SERVER_PORT:9091}
+
+logging:
+  level:
+    root: WARN
+    '[com.learn.desifans_user_service]': INFO
+  file:
+    name: logs/user-service.log
